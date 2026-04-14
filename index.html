@@ -383,15 +383,14 @@
                 <input type="date" id="f_tanggal">
             </div>
 
-            <div class="field-row">
-                <div class="field">
-                    <label>Dasar</label>
-                    <input type="text" id="f_dasar" placeholder="Tugas Pokok & Fungsi">
-                </div>
-                <div class="field">
-                    <label>Tempat</label>
-                    <input type="text" id="f_tempat" placeholder="Kantor Bupati...">
-                </div>
+            <div class="field">
+                <label>Dasar</label>
+                <textarea id="f_dasar" rows="2" placeholder="Contoh: Surat Tugas Bupati Indragiri Hulu Nomor..."></textarea>
+            </div>
+
+            <div class="field">
+                <label>Tempat</label>
+                <input type="text" id="f_tempat" placeholder="Contoh: Kantor Bupati Indragiri Hulu">
             </div>
 
             <div class="field">
@@ -592,10 +591,16 @@
                 allowTaint: true
             });
             const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pageWidth  = pdf.internal.pageSize.getWidth();
-            const imgHeight  = (canvas.height * pageWidth) / canvas.width;
-            pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, pageWidth, imgHeight);
+
+            // Ukuran A4: 210 x 297 mm
+            const pageWidthMm  = 210;
+            const a4HeightMm   = 297;
+            const imgHeightMm  = (canvas.height * pageWidthMm) / canvas.width;
+            // Kertas minimal A4, kalau lebih panjang ikuti konten
+            const pageHeightMm = Math.max(a4HeightMm, imgHeightMm);
+
+            const pdf = new jsPDF('p', 'mm', [pageWidthMm, pageHeightMm]);
+            pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, pageWidthMm, imgHeightMm);
             return pdf;
         }
 
