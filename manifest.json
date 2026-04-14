@@ -1,10 +1,16 @@
 {
-  "name": "Laporan Kerja",
-  "short_name": "Laker",
-  "start_url": "index.html",
+  "id": "https://image2pdf-theta.vercel.app/",
+  "name": "Laporan Kerja 2026",
+  "short_name": "laker",
+  "description": "buat laporan kerja simple dan cepat",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#2e7d32",
-  "theme_color": "#2e7d32",
+  "background_color": "#f0f2f8",
+  "theme_color": "#1a56db",
+  "orientation": "portrait-primary",
+  "lang": "id",
+  "categories": ["utilities", "productivity"],
   "icons": [
     {
       "src": "icon.png",
