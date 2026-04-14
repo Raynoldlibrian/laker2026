@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Kerja</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a2e">
+    <link rel="apple-touch-icon" href="logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --ink: #1a1a2e;
+            --ink-soft: #3d3d5c;
+            --ink-muted: #7c7c9e;
+            --surface: #f7f6f3;
+            --white: #ffffff;
+            --accent: #c8a96e;
+            --accent-dark: #a8893e;
+            --accent-light: #f0e6d0;
+            --line: #e2e0d8;
+            --danger: #c0392b;
+            --info: #1a6ea8;
+            --radius: 4px;
+            --radius-lg: 10px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--surface);
+            color: var(--ink);
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        /* ── TOP BAR ── */
+        .topbar {
+            background: var(--ink);
+            padding: 0 20px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .topbar-dot {
+            width: 8px; height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+        .topbar-title {
+            font-family: 'DM Serif Display', serif;
+            color: var(--white);
+            font-size: 17px;
+            letter-spacing: 0.3px;
+        }
+        .topbar-title span {
+            color: var(--accent);
+        }
+        .btn-settings {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.7);
+            width: 36px; height: 36px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 15px;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .btn-settings:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* ── CONTAINER ── */
+        .container {
+            max-width: 580px;
+            margin: 0 auto;
+            padding: 28px 16px;
+        }
+
+        /* ── PAGE HEADER ── */
+        .page-header {
+            margin-bottom: 24px;
+        }
+        .page-header h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 28px;
+            color: var(--ink);
+            line-height: 1.2;
+        }
+        .page-header h1 em {
+            font-style: italic;
+            color: var(--accent-dark);
+        }
+        .page-header p {
+            font-size: 13px;
+            color: var(--ink-muted);
+            margin-top: 6px;
+            font-weight: 300;
+        }
+
+        /* ── CARD ── */
+        .card {
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+        .card-section-title {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--ink-muted);
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        /* ── FORM ── */
+        .field { margin-bottom: 18px; }
+        .field:last-of-type { margin-bottom: 0; }
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--ink-soft);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+        input[type="text"],
+        input[type="date"],
+        input[type="file"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            color: var(--ink);
+            background: var(--white);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(200,169,110,0.12);
+        }
+        input[type="file"] {
+            padding: 8px 14px;
+            font-size: 13px;
+            color: var(--ink-muted);
+            cursor: pointer;
+            background: var(--surface);
+        }
+        textarea {
+            resize: vertical;
+            line-height: 1.6;
+        }
+        ::placeholder { color: #b8b6ae; }
+
+        /* ── DIVIDER ── */
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* ── BUTTONS ── */
+        .btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+        .btn-row { display: flex; gap: 10px; }
+        .btn {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            padding: 13px 20px;
+            border-radius: var(--radius);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center;
+            gap: 8px;
+            flex: 1;
+        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-primary {
+            background: var(--ink);
+            color: var(--white);
+        }
+        .btn-primary:hover:not(:disabled) { background: var(--ink-soft); }
+
+        .btn-accent {
+            background: var(--accent);
+            color: var(--ink);
+        }
+        .btn-accent:hover:not(:disabled) { background: var(--accent-dark); color: var(--white); }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--danger);
+            border: 1px solid #e8d0ce;
+        }
+        .btn-outline:hover:not(:disabled) {
+            background: #fdf2f1;
+            border-color: var(--danger);
+        }
+
+        /* ── SPINNER ── */
+        .spinner {
+            width: 14px; height: 14px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── FOOTER ── */
+        footer {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: var(--ink);
+            text-align: center;
+            padding: 12px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.35);
+            letter-spacing: 0.3px;
+        }
+
+        /* ── MODAL ── */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 200;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background: rgba(10,10,20,0.6);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        .modal.active { display: flex; align-items: flex-end; justify-content: center; }
+        .modal-content {
+            background: var(--white);
+            width: 100%;
+            max-width: 480px;
+            border-radius: 16px 16px 0 0;
+            padding: 28px 24px 32px;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(40px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-handle {
+            width: 36px; height: 4px;
+            background: var(--line);
+            border-radius: 2px;
+            margin: 0 auto 20px;
+        }
+        .modal-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 20px;
+            color: var(--ink);
+            margin-bottom: 20px;
+        }
+        .modal-title span { color: var(--accent-dark); font-style: italic; }
+
+        /* ── TOAST ── */
+        #toast {
+            position: fixed;
+            bottom: 56px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--ink);
+            color: var(--white);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            opacity: 0;
+            transition: all 0.3s;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 300;
+            border-left: 3px solid var(--accent);
+        }
+        #toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ── PDF PREVIEW AREA (hidden) ── */
+        #preview-area {
+            position: absolute;
+            left: -9999px;
+            width: 790px;
+            background: white;
+            padding: 30px;
+            color: black;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .pdf-header {
+            display: flex;
+            border-bottom: 2px solid black;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+            height: 100px;
+            position: relative;
+        }
+        .pdf-logo-img {
+            height: 75px;
+            object-fit: contain;
+            width: 150px;
+        }
+        .pdf-meta {
+            position: absolute;
+            left: 50%;
+            top: 10px;
+        }
+        .pdf-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+            border: 1px solid black;
+        }
+        .pdf-table td {
+            border: 0.5px solid black;
+            padding: 8px;
+            vertical-align: top;
+            font-size: 13px;
+        }
+        .bg-grey {
+            background: #f2f2f2;
+            font-weight: bold;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="topbar">
+        <div class="topbar-brand">
+            <div class="topbar-dot"></div>
+            <div class="topbar-title">Laporan <span>Kerja</span></div>
+        </div>
+        <button class="btn-settings" onclick="toggleModal()" title="Pengaturan">⚙</button>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Buat <em>Laporan</em> Kerja</h1>
+            <p>Isi form di bawah lalu unduh sebagai PDF atau kirim ke Drive kantor.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-section-title">Informasi Kegiatan</div>
+
+            <div class="field">
+                <label>Tanggal</label>
+                <input type="date" id="f_tanggal">
+            </div>
+
+            <div class="field-row">
+                <div class="field">
+                    <label>Dasar</label>
+                    <input type="text" id="f_dasar" placeholder="Tugas Pokok & Fungsi">
+                </div>
+                <div class="field">
+                    <label>Tempat</label>
+                    <input type="text" id="f_tempat" placeholder="Kantor Bupati...">
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Kegiatan</label>
+                <input type="text" id="f_kegiatan" placeholder="Ringkasan kegiatan...">
+            </div>
+
+            <div class="field">
+                <label>Hasil Kegiatan</label>
+                <textarea id="f_hasil" rows="5" placeholder="1. Poin pertama&#10;2. Poin kedua..."></textarea>
+            </div>
+
+            <div class="field">
+                <label>Dokumentasi (Maks 2 Foto)</label>
+                <input type="file" id="f_foto" accept="image/*" multiple>
+            </div>
+
+            <div class="btn-group">
+                <div class="btn-row">
+                    <button class="btn btn-primary" id="btnCetak" onclick="generatePDF()">
+                        ↓ Download PDF
+                    </button>
+                    <button class="btn btn-accent" id="btnDrive" onclick="sendToDrive()">
+                        ↑ Kirim ke Drive
+                    </button>
+                </div>
+                <button class="btn btn-outline" onclick="clearForm()">
+                    Hapus Semua Isi Form
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer>Raynold &mdash; Bag. Organisasi Setda Inhu &mdash; 2026</footer>
+
+    <div id="toast"></div>
+
+    <!-- MODAL PENGATURAN -->
+    <div id="modalProfil" class="modal" onclick="handleModalOverlayClick(event)">
+        <div class="modal-content">
+            <div class="modal-handle"></div>
+            <div class="modal-title">Pengaturan <span>Master</span></div>
+
+            <div class="field">
+                <label>Upload Logo</label>
+                <input type="file" id="m_logo_file" accept="image/*" onchange="previewLogo(this)">
+            </div>
+
+            <div class="field">
+                <label>Nama Lengkap</label>
+                <input type="text" id="m_nama" placeholder="Masukkan nama">
+            </div>
+
+            <div class="field-row">
+                <div class="field">
+                    <label>NIP</label>
+                    <input type="text" id="m_nip" placeholder="Masukkan NIP">
+                </div>
+                <div class="field">
+                    <label>Jabatan</label>
+                    <input type="text" id="m_jabatan" placeholder="Jabatan">
+                </div>
+            </div>
+
+            <div class="field">
+                <label>ID Folder Google Drive Kantor</label>
+                <input type="text" id="m_folder_id" placeholder="1abc123xxx...">
+                <small style="color: var(--ink-muted); font-size: 11px; margin-top: 5px; display: block;">
+                    Copy ID setelah /folders/ dari URL Google Drive.
+                </small>
+            </div>
+
+            <div class="btn-row" style="margin-top: 20px; gap: 10px;">
+                <button class="btn btn-primary" onclick="saveProfile()" style="flex: 2;">Simpan Pengaturan</button>
+                <button class="btn btn-outline" onclick="toggleModal()" style="flex: 1; color: var(--ink-muted); border-color: var(--line);">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AREA PDF TERSEMBUNYI -->
+    <div id="preview-area">
+        <div class="pdf-header">
+            <div style="width: 150px;">
+                <img id="pdf-logo-view" class="pdf-logo-img" src="" alt="Logo">
+            </div>
+            <div class="pdf-meta">
+                <table style="border: none; font-size: 12px; border-collapse: collapse; line-height: 1.4;">
+                    <tr>
+                        <td style="border:none; padding:2px; font-weight:bold;" width="60">Tanggal</td>
+                        <td style="border:none; padding:2px;" width="10">:</td>
+                        <td style="border:none; padding:2px; font-weight:bold;" id="p_tanggal"></td>
+                    </tr>
+                    <tr>
+                        <td style="border:none; padding:2px; font-weight:bold;">Nama</td>
+                        <td style="border:none; padding:2px;">:</td>
+                        <td style="border:none; padding:2px; font-weight:bold;" id="p_nama"></td>
+                    </tr>
+                    <tr>
+                        <td style="border:none; padding:2px; font-weight:bold;">NIP</td>
+                        <td style="border:none; padding:2px;">:</td>
+                        <td style="border:none; padding:2px; font-weight:bold;" id="p_nip"></td>
+                    </tr>
+                    <tr>
+                        <td style="border:none; padding:2px; font-weight:bold;">Jabatan</td>
+                        <td style="border:none; padding:2px;">:</td>
+                        <td style="border:none; padding:2px; font-weight:bold;" id="p_jabatan"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <table class="pdf-table">
+            <tr>
+                <td class="bg-grey" style="width:50%">Dasar</td>
+                <td class="bg-grey" style="width:50%">Tempat</td>
+            </tr>
+            <tr>
+                <td id="p_dasar" style="height:40px;"></td>
+                <td id="p_tempat" style="height:40px;"></td>
+            </tr>
+            <tr>
+                <td colspan="2" class="bg-grey">Kegiatan</td>
+            </tr>
+            <tr>
+                <td colspan="2" id="p_kegiatan" style="font-weight:bold; padding:12px;"></td>
+            </tr>
+            <tr>
+                <td colspan="2" class="bg-grey">Hasil Kegiatan</td>
+            </tr>
+            <tr>
+                <td colspan="2" id="p_hasil" style="white-space:pre-line; min-height:150px; line-height:1.6; padding:12px;"></td>
+            </tr>
+            <tr>
+                <td colspan="2" class="bg-grey">Dokumentasi</td>
+            </tr>
+            <tr>
+                <td colspan="2" style="padding:15px 0;">
+                    <div id="p_foto_container" style="display:flex; justify-content:space-around;"></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <script>
+        /* ── UTILS ── */
+        function showToast(msg, duration = 3000) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), duration);
+        }
+
+        function formatTanggal(val) {
+            if (!val) return '';
+            const [y, m, d] = val.split('-');
+            const bulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+            return `${parseInt(d)} ${bulan[parseInt(m)-1]} ${y}`;
+        }
+
+        function readFileAsDataURL(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        /* ── SYNC PREVIEW ── */
+        async function syncPreview() {
+            document.getElementById('p_tanggal').innerText = formatTanggal(document.getElementById('f_tanggal').value);
+            document.getElementById('p_nama').innerText    = localStorage.getItem('m_nama') || '';
+            document.getElementById('p_nip').innerText     = localStorage.getItem('m_nip') || '';
+            document.getElementById('p_jabatan').innerText = localStorage.getItem('m_jabatan') || '';
+            document.getElementById('p_dasar').innerText   = document.getElementById('f_dasar').value;
+            document.getElementById('p_tempat').innerText  = document.getElementById('f_tempat').value;
+            document.getElementById('p_kegiatan').innerText= document.getElementById('f_kegiatan').value;
+            document.getElementById('p_hasil').innerText   = document.getElementById('f_hasil').value;
+
+            const files = document.getElementById('f_foto').files;
+            const container = document.getElementById('p_foto_container');
+            container.innerHTML = '';
+            for (let i = 0; i < Math.min(files.length, 2); i++) {
+                const imgData = await readFileAsDataURL(files[i]);
+                const img = document.createElement('img');
+                img.src = imgData;
+                img.style.cssText = 'width:45%; border-radius:5px; border:1px solid #ccc;';
+                container.appendChild(img);
+            }
+            // Tunggu gambar render
+            await new Promise(resolve => setTimeout(resolve, 900));
+        }
+
+        /* ── BUILD PDF ── */
+        async function buildPDF() {
+            const canvas = await html2canvas(document.getElementById('preview-area'), {
+                scale: 2,
+                useCORS: true,
+                allowTaint: true
+            });
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pageWidth  = pdf.internal.pageSize.getWidth();
+            const imgHeight  = (canvas.height * pageWidth) / canvas.width;
+            pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, pageWidth, imgHeight);
+            return pdf;
+        }
+
+        /* ── GENERATE PDF ── */
+        async function generatePDF() {
+            const btn = document.getElementById('btnCetak');
+            btn.innerHTML = '<div class="spinner"></div> Memproses...';
+            btn.disabled = true;
+
+            try {
+                await syncPreview();
+                const pdf = await buildPDF();
+                const nama   = localStorage.getItem('m_nama') || 'User';
+                const tgl    = document.getElementById('f_tanggal').value.replace(/-/g, '_');
+                pdf.save(`Laporan_${nama}_${tgl}.pdf`);
+                showToast('PDF berhasil diunduh!');
+            } catch (err) {
+                showToast('Gagal membuat PDF: ' + err.message);
+            } finally {
+                btn.innerHTML = '↓ Download PDF';
+                btn.disabled = false;
+            }
+        }
+
+        /* ── KIRIM KE DRIVE ── */
+        async function sendToDrive() {
+            const folderId   = localStorage.getItem('m_folder_id');
+            const scriptUrl  = "https://script.google.com/macros/s/AKfycbx1QrvGP-OAQUuCTy9T_3WVCstXxiCLAkfeQeKhTBZDtfOFKbqP7meDS9ZpA4t1FmW8Mw/exec";
+
+            if (!folderId) {
+                showToast('ID Folder belum diisi di Pengaturan!');
+                return;
+            }
+
+            if (!confirm('Kirim laporan ini ke Google Drive kantor?')) return;
+
+            const btn = document.getElementById('btnDrive');
+            btn.innerHTML = '<div class="spinner" style="border-top-color: var(--ink);"></div> Mengirim...';
+            btn.disabled = true;
+
+            try {
+                await syncPreview();
+                const pdf       = await buildPDF();
+                const pdfBase64 = pdf.output('datauristring');
+                const nama      = localStorage.getItem('m_nama') || 'User';
+                const tgl       = document.getElementById('f_tanggal').value.replace(/-/g, '_');
+                const fileName  = `Laporan_${nama}_${tgl}.pdf`;
+
+                await fetch(scriptUrl, {
+                    method: "POST",
+                    body: JSON.stringify({ pdf: pdfBase64, filename: fileName, folderId })
+                });
+
+                showToast('Laporan berhasil dikirim ke Drive kantor!', 4000);
+            } catch (err) {
+                showToast('Gagal kirim: ' + err.message);
+            } finally {
+                btn.innerHTML = '↑ Kirim ke Drive';
+                btn.disabled = false;
+            }
+        }
+
+        /* ── CLEAR FORM ── */
+        function clearForm() {
+            if (!confirm('Hapus semua isi laporan ini?')) return;
+            ['f_dasar','f_tempat','f_kegiatan','f_hasil','f_foto'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            document.getElementById('f_tanggal').valueAsDate = new Date();
+            showToast('Form sudah bersih!');
+        }
+
+        /* ── MODAL ── */
+        function toggleModal() {
+            const m = document.getElementById('modalProfil');
+            m.classList.toggle('active');
+        }
+        function handleModalOverlayClick(e) {
+            if (e.target === document.getElementById('modalProfil')) toggleModal();
+        }
+
+        /* ── LOGO ── */
+        function previewLogo(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    localStorage.setItem('master_logo_base64', e.target.result);
+                    document.getElementById('pdf-logo-view').src = e.target.result;
+                    showToast('Logo tersimpan!');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        /* ── SAVE PROFILE ── */
+        function saveProfile() {
+            ['m_nama','m_nip','m_jabatan','m_folder_id'].forEach(id => {
+                localStorage.setItem(id, document.getElementById(id).value);
+            });
+            toggleModal();
+            showToast('Profil & pengaturan tersimpan!');
+        }
+
+        /* ── ON LOAD ── */
+        window.onload = () => {
+            ['m_nama','m_nip','m_jabatan','m_folder_id'].forEach(id => {
+                document.getElementById(id).value = localStorage.getItem(id) || '';
+            });
+            const savedLogo = localStorage.getItem('master_logo_base64');
+            if (savedLogo) document.getElementById('pdf-logo-view').src = savedLogo;
+            document.getElementById('f_tanggal').valueAsDate = new Date();
+        };
+
+        /* ── SERVICE WORKER ── */
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(reg => console.log('SW OK', reg))
+                    .catch(err => console.warn('SW Gagal', err));
+            });
+        }
+    </script>
+</body>
+</html>
