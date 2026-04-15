@@ -655,7 +655,7 @@
                     body: JSON.stringify({ pdf: pdfBase64, filename: fileName, folderId })
                 });
 
-                showToast('Laporan berhasil dikirim ke Drive kantor!', 4000);
+                showToast('Laporan berhasil dikirim ke Drive kantor!', 1000);
             } catch (err) {
                 showToast('Gagal kirim: ' + err.message);
             } finally {
